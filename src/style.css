@@ -1,0 +1,135 @@
+@font-face {
+    font-family: arima;
+    src: url("./fonts/Arima-Thin.woff2") format("woff2"),
+    url("./fonts/Arima-Thin.woff") format("woff");
+}
+
+* {
+    margin: 0;
+    padding: 0;
+}
+
+:root {
+    --background: hsl(60, 30%, 96%);
+    --background-hover: hsl(60, 30%, 90%);
+    --background-active: hsl(60, 30%, 87%);
+    --start-screen-bg: hsla(225, 27%, 51%, 0.973);
+    --subtle: hsl(225, 27%, 51%);
+    --more-subtle: hsl(225, 27%, 85%);
+    --pink: hsl(326, 100%, 74%);
+    --dark-pink: hsl(326, 50%, 50%);
+    --green: hsl(135, 94%, 65%);
+    --yellow: hsl(65, 92%, 76%);
+    --blue: hsl(191, 97%, 77%);
+    --font: hsl(231, 15%, 18%);
+}
+
+body {
+    font-family: arima, 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+    background-color: var(--background);
+    display: grid;
+    grid-template: 1fr 6fr / 1fr 4fr;
+    height: 100vh;
+}
+
+.sidebar-title {
+    grid-area: 1 / 1 / 2 / 2;
+    display: flex;
+    padding: 16px 0px 0px 20px;
+}
+
+.sidebar,
+.sidebar-title {
+    color: var(--font);
+}
+
+.sidebar {
+    padding: 6px;
+    grid-area: 2 / 1 / -1 / 2;
+
+}
+
+
+.header {
+    background-color: var(--more-subtle);
+    grid-area: 1 / 2 / 2 / -1;
+    border-bottom-left-radius: 75px 50px;
+    color: var(--font);
+}
+
+.time-cats {
+    display: flex;
+    flex-direction: column;
+}
+.cat {
+    background-color: var(--background);
+    border-bottom: 1px solid var(--more-subtle);
+    display: flex;
+    justify-content: flex-end;
+    padding: 13px 5px 0px 5px;
+    border-radius: 20px 20px 10px 10px;
+    margin-bottom: -5px;
+    box-shadow: 0px 1px 1px var(--more-subtle);
+}
+
+.cat:first-child {
+    z-index: 4;
+}
+.cat:nth-child(2) {
+    z-index: 3;
+}
+
+.cat:nth-child(3) {
+    z-index: 2;
+}
+
+.cat:nth-child(4) {
+    z-index: 1;
+}
+
+.cat:hover {
+    background-color: var(--more-subtle);
+    cursor: pointer;
+}
+
+.cat:active {
+    background-color: var(--background-active);
+}
+
+.projects {
+    margin-top: 16px;
+}
+
+.main {
+    padding: 30px;
+}
+
+.add-item {
+    appearance: none;
+    border: none;
+    font-family: inherit;
+    background-color: var(--background);
+    font-size: 1.2rem;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    padding: 6px 30px;
+    background-color: var(--more-subtle);
+    border-radius: 15px;
+    width: 100px;
+}
+
+.add-item:hover {
+    background-color: var(--subtle);
+}
+
+.add-item:active {
+    background-color: var(--more-subtle);
+}
+.add-item > span {
+    position: absolute;
+    right: 15%;
+    bottom: 15%;
+}

@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@mdi/font@6.9.96/css/materialdesignicons.min.css">
+    <title>
+        <%= htmlWebpackPlugin.options.title %>
+    </title>
+</head>
+
+<body>
+    <div class="sidebar-title">
+        <h1>To-Do List</h1>
+    </div>
+    <div class="sidebar">
+        <ul class="time-cats">
+            <li class="cat">Today</li>
+            <li class="cat">This Week</li>
+            <li class="cat">Next Week</li>
+            <li class="cat">Future</li>
+        </ul>
+        <ul class="projects">
+            <li class="cat"><span class="mdi mdi-plus"></span>New Project</li>
+        </ul>
+    </div>
+    <div class="header">User-Info here</div>
+    <div class="main"></div>
+
+</body>
+
+</html>

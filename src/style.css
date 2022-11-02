@@ -7,6 +7,7 @@
 * {
     margin: 0;
     padding: 0;
+    list-style: none;
 }
 
 :root {
@@ -19,9 +20,11 @@
     --pink: hsl(326, 100%, 74%);
     --dark-pink: hsl(326, 50%, 50%);
     --green: hsl(135, 94%, 65%);
+    --dark-green: hsl(135, 50%, 50%);
     --yellow: hsl(65, 92%, 76%);
+    --dark-yellow: hsl(65, 50%, 50%);
     --blue: hsl(191, 97%, 77%);
-    --font: hsl(231, 15%, 18%);
+    --font:  hsl(231, 15%, 18%);
 }
 
 body {
@@ -30,17 +33,19 @@ body {
     display: grid;
     grid-template: 1fr 6fr / 1fr 4fr;
     height: 100vh;
+    position: relative;
 }
 
 .sidebar-title {
     grid-area: 1 / 1 / 2 / 2;
     display: flex;
     padding: 16px 0px 0px 20px;
+    color: var(--font);
 }
 
-.sidebar,
-.sidebar-title {
+.sidebar {
     color: var(--font);
+    min-width: 125px;
 }
 
 .sidebar {
@@ -49,9 +54,8 @@ body {
 
 }
 
-
 .header {
-    background-color: var(--more-subtle);
+    background-color: var(--subtle);
     grid-area: 1 / 2 / 2 / -1;
     border-bottom-left-radius: 75px 50px;
     color: var(--font);
@@ -61,6 +65,7 @@ body {
     display: flex;
     flex-direction: column;
 }
+
 .cat {
     background-color: var(--background);
     border-bottom: 1px solid var(--more-subtle);
@@ -70,6 +75,34 @@ body {
     border-radius: 20px 20px 10px 10px;
     margin-bottom: -5px;
     box-shadow: 0px 1px 1px var(--more-subtle);
+}
+
+.user-projects {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 21px;
+}
+
+.user-projects .project {
+    border-bottom: 1px solid var(--more-subtle);
+    display: flex;
+    justify-content: flex-end;
+    padding: 5px;
+    border-radius: 10px;
+    box-shadow: 0px 1px 1px var(--more-subtle);
+}
+
+.user-projects .project.low {
+    border-left: 8px solid var(--dark-green);
+}
+
+.user-projects .project.medium {
+    border-left: 8px solid var(--dark-yellow);
+}
+
+.user-projects .project.high {
+    border-left: 8px solid var(--dark-pink);
 }
 
 .cat:first-child {
@@ -87,12 +120,14 @@ body {
     z-index: 1;
 }
 
-.cat:hover {
+.cat:hover,
+.project:hover {
     background-color: var(--more-subtle);
     cursor: pointer;
 }
 
-.cat:active {
+.cat:active,
+.project:active {
     background-color: var(--background-active);
 }
 
@@ -132,4 +167,181 @@ body {
     position: absolute;
     right: 15%;
     bottom: 15%;
+}
+
+.add-form {
+    font-family: inherit;
+    z-index: 10;
+    visibility: hidden;
+    scale: 0;
+    padding: 10px 30px 30px 30px;
+    background-color: var(--subtle);
+    width: min-content;
+    height: min-content;
+    position: absolute;
+    inset: 0;
+    margin: auto;
+    border-radius: 30px;
+    box-shadow: 1px 1px 3px var(--subtle);
+    color: var(--background);
+    transition: 0.3s;
+}
+
+.form-type {
+    text-align: center;
+    padding: 0;
+    margin: 0;
+}
+
+.add-form .form-contents {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.add-form input,
+.add-form textarea {
+    appearance: none;
+    border: none;
+    font-size: 1.1rem;
+    font-family: inherit;
+    padding: 8px;
+    border-radius: 10px;
+    line-height: 24px;
+    width: 200px;
+    background-color: var(--background);
+}
+
+.add-form input:focus,
+.add-form textarea:focus {
+    outline: none;
+}
+
+.add-form .radio {
+    display: flex;
+    border: none;
+    width: 200px;
+}
+
+.radio input[type="radio"] {
+    width: 20px;
+    height: 20px;
+    background-color: var(--more-subtle);
+    position: relative;
+    cursor: pointer;
+}
+
+.radio input[type="radio"]::after {
+    position: absolute;
+    content: " ";
+    width: 18px;
+    height: 18px;
+    background-color: var(--pink);
+    border-radius: 50%;
+    left: 1px;
+    bottom: 1px;
+    visibility: hidden;
+    transform: scale(0);
+    transition: .4s;
+}
+
+.radio input[type="radio"]:checked::after {
+    visibility: visible;
+    transform: scale(1);
+}
+
+.radio input#low::after {
+    background-color: var(--green);
+}
+
+.radio input#medium::after {
+    background-color: var(--yellow);
+}
+
+.radio input #high::after {
+    background-color: var(--pink);
+}
+
+.radio ul {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+}
+.radio li {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.radio li:first-child {
+    color: var(--green);
+}
+
+.radio li:nth-child(2) {
+    color: var(--yellow);
+}
+
+.radio li:nth-child(3) {
+    color: var(--pink);
+}
+
+.btns {
+    display: flex;
+    width: 200px;
+    justify-content: space-around;
+    margin-top: 16px;
+}
+
+.add-form button {
+    appearance: none;
+    border: none;
+    font-family: inherit;
+    font-size: 1rem;
+    padding: 8px 16px;
+    border-radius: 10px;
+    background-color: var(--background);
+    cursor: pointer;
+}
+
+.add-form button:hover {
+    background-color: var(--more-subtle);
+}
+
+.add-form button:active {
+    background-color: var(--background-active);
+}
+
+.hidden {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.2s ease-out;
+}
+
+.add-form button.info {
+    position: absolute;
+    box-sizing: border-box;
+    font-size: 1.5rem;
+    color: var(--font);
+    height: min-content;
+    width: min-content;
+    padding: 0;
+    line-height: 1.2rem;
+    text-align: center;
+    background-color: hsla(225, 27%, 51%, 0);
+    top: 0;
+    right: -10px;
+}
+
+.add-form button.info:hover {
+    color: var(--more-subtle);
+}
+
+.add-form button.info:active {
+    color: var(--background-active);
+}
+
+.visible {
+    visibility: visible;
+    scale: 1;
 }

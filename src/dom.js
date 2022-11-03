@@ -10,6 +10,7 @@ const itemContainer = document.createElement("div");
 itemContainer.classList.add("item-container");
 
 let currentList;
+let itemArray = [];
 
 const newItem = document.createElement("button");
 const plusIcon = document.createElement("span");
@@ -43,20 +44,20 @@ function createProjects() {
     userProjects.classList.add("user-projects");
     // const projectTitles = allProjects.map(project => project.title);
 
-    allProjects.forEach((project, index) => {
+    for (let project in allProjects) {
+        let projectObject = allProjects[project];
         const tab = document.createElement("li");
-        tab.innerText = `${project.title}`;
+        tab.innerText = `${projectObject.title}`;
         tab.classList.add("project");
-        tab.dataset.index = index;
-        if (project.priority) {
-            tab.classList.add(`${project.priority}`);
+        if (projectObject.priority) {
+            tab.classList.add(`${projectObject.priority}`);
         }
         tab.addEventListener("click", () => {
             clearDisplay();
-            openList(project);
+            openList(projectObject);
         })
         userProjects.appendChild(tab);
-    })
+    }
 
     projectSection.appendChild(userProjects);
 }
@@ -69,23 +70,57 @@ function removeProjects() {
 }
 
 function renderListItems(list) {
-    const items = document.createElement("div");
+    itemArray = [];
     for (let i = 0; i < list.items.length; i++) {
-        let item = document.createElement("div");
-        item.innerText = list.items[i].title;
-        items.appendChild(item);
+        let item = list.items[i];
+        let domItem = createItem(item);
+        itemArray.push(domItem);
+        domItem.renderView();
     }
-    itemContainer.appendChild(items);
 }
 
 function appendNewItem(item) {
-    const itemDisplay = document.createElement("div");
-    itemDisplay.innerText = item.title;
-    if (itemContainer.firstChild) {
-        itemContainer.firstChild.appendChild(itemDisplay);
-    } else {
-        itemContainer.appendChild(itemDisplay);
+    const domItem = createItem(item);
+    itemArray.push(domItem);
+    domItem.renderView();
+}
+
+const domItemMethods = {
+    deleteItem() {
+        this.item.removeFromProject();
+    },
+    renderView() {
+        const itemDisplay = document.createElement("li");
+        itemDisplay.classList.add("list-item");
+        itemDisplay.append(this.checkbox, this.itemText);
+        if (itemContainer.firstChild) {
+            itemContainer.firstChild.appendChild(itemDisplay);
+        } else {
+            const items = document.createElement("ul");
+            items.appendChild(itemDisplay);
+            itemContainer.appendChild(items);
+        }
     }
+}
+
+function createItem(item) {
+    const domItem = Object.create(domItemMethods);
+
+    const idTag = `item-${item.title}`
+
+    const itemText = document.createElement("label");
+    itemText.setAttribute("for", idTag);
+    itemText.innerText = item.title;
+
+    const checkbox = document.createElement("input");
+    checkbox.setAttribute("type", "checkbox");
+    checkbox.setAttribute("id", idTag);
+
+    domItem.item = item;
+    domItem.checkbox = checkbox;
+    domItem.itemText = item.title;
+
+    return domItem
 }
 
 function openList(list = timeObjects[0]) {
@@ -99,11 +134,14 @@ function openList(list = timeObjects[0]) {
 
 function clearDisplay() {
     if (itemContainer.firstChild) {
+        for (let item of itemArray) {
+            if (item.checkbox.checked) {
+                item.deleteItem();
+            }
+        }
         itemContainer.removeChild(itemContainer.firstChild);
     }
 }
-
-
 
 export {
     createProjects, openList, renderTimeTabs,

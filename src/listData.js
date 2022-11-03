@@ -1,6 +1,6 @@
 import { openList } from "./dom.js"
 
-let allProjects = [];
+let allProjects = {};
 
 const timeMethods = {
 
@@ -21,7 +21,9 @@ let future = createTimeObject("Future");
 let timeObjects  = [today, thisWeek, nextWeek, future];
 
 const projectMethods = {
-    openList: openList(this),
+    deleteProject() {
+        delete allProjects[this.title];
+    }
 }
 
 function addProject(title, notes, due, priority) {
@@ -31,20 +33,19 @@ function addProject(title, notes, due, priority) {
     project.due = due;
     project.priority = priority;
     project.items = [];
-    allProjects.push(project);
+    allProjects[project.title] = project;
     console.log(allProjects);
     return project;
 }
 
 const itemMethods = {
     addToProject() {
-        let project  = this.project;
-        for (let i = 0; i < allProjects.length; i++) {
-            if (allProjects[i].title === project) {
-                allProjects[i].items.push(this);
-            }
-        }
+        allProjects[this.project].items.push(this);
         console.log(allProjects);
+    },
+    removeFromProject() {
+        const index = allProjects[this.project].items.indexOf(this);
+        allProjects[this.project].items.splice(index, 1);
     }
 }
 function addListItem(title, notes, due, priority, project) {

@@ -135,6 +135,9 @@ body {
     margin-top: 16px;
 }
 
+.meat {
+    display: flex;
+}
 .main {
     padding: 30px;
 }

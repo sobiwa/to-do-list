@@ -1,24 +1,55 @@
-import { openList } from "./dom.js"
+import { add, startOfToday } from "date-fns";
 
 let allProjects = {};
 
 const timeMethods = {
+    compileArray() {
 
+        for (let project in allProjects) {
+            if (allProjects[project].items) {
+                this.items = [];
+                for (let item of allProjects[project].items) {
+                    if (item.due) {
+
+                        //add space to interpret date properly 
+                        let due = item.due + " ";
+                        due = new Date(due);
+                        if (this.end) {
+                            if (due >= this.begin && due < this.end) {
+                                this.items.push(item);
+                            }
+                        } else {
+                            if (due >= this.begin) {
+                                this.items.push(item);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
 }
 
-function createTimeObject(title) {
-    let time  = Object.create(timeMethods);
+function createTimeObject(title, begin, end) {
+    let time = Object.create(timeMethods);
     time.title = title;
     time.items = [];
+    time.begin = begin;
+    time.end = end;
     return time
 }
 
-let today = createTimeObject("Today");
-let thisWeek = createTimeObject("This Week");
-let nextWeek = createTimeObject("Next Week");
-let future = createTimeObject("Future");
+let todayDate = startOfToday();
+let tomorrow = add(todayDate, { days: 1 });
+let thisWeekDate = add(todayDate, { weeks: 1 });
+let nextWeekDate = add(todayDate, { weeks: 2 });
 
-let timeObjects  = [today, thisWeek, nextWeek, future];
+let today = createTimeObject("Today", todayDate, tomorrow);
+let thisWeek = createTimeObject("This Week", tomorrow, thisWeekDate);
+let nextWeek = createTimeObject("Next Week", thisWeekDate, nextWeekDate);
+let future = createTimeObject("Future", nextWeekDate);
+
+let timeObjects = [today, thisWeek, nextWeek, future];
 
 const projectMethods = {
     deleteProject() {
@@ -27,7 +58,7 @@ const projectMethods = {
 }
 
 function addProject(title, notes, due, priority) {
-    let project  = Object.create(projectMethods);
+    let project = Object.create(projectMethods);
     project.title = title;
     project.notes = notes;
     project.due = due;

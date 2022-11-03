@@ -8,9 +8,11 @@ const titleDisplay = document.createElement("h1");
 titleDisplay.classList.add("title-display");
 const itemContainer = document.createElement("div");
 itemContainer.classList.add("item-container");
+const projectDetails = document.querySelector(".project-details");
 
 let currentList;
 let itemArray = [];
+let listArray = [];
 
 const newItem = document.createElement("button");
 const plusIcon = document.createElement("span");
@@ -31,51 +33,80 @@ function renderTimeTabs() {
         tab.classList.add("cat");
         tab.innerText = object.title;
         tab.addEventListener("click", () => {
-            clearDisplay();
-            openList(object);
+            object.compileArray();
+            let domList = createList(object);
+            domList.openList();
         })
         timeSection.appendChild(tab);
     }
 }
 
 function createProjects() {
+    listArray = [];
     removeProjects();
     const userProjects = document.createElement("ul");
     userProjects.classList.add("user-projects");
-    // const projectTitles = allProjects.map(project => project.title);
 
     for (let project in allProjects) {
         let projectObject = allProjects[project];
+        let domList = Object.assign(createList(projectObject), createTab);
+        listArray.push(domList);
+        console.log(domList);
+        userProjects.appendChild(domList.createTab());
+    }
+    projectSection.appendChild(userProjects);
+}
+
+function openRecentProject() {
+    const recentProject = listArray[listArray.length - 1];
+    recentProject.openList();
+}
+
+const domListMethods = {
+    openList() {
+        clearDisplay();
+        currentList = this.list;
+        titleDisplay.innerText = this.list.title;
+        if (this.list.items.length) {
+            this.renderListItems();
+        }
+    },
+    renderListItems() {
+        itemArray = [];
+        for (let i = 0; i < this.list.items.length; i++) {
+            let item = this.list.items[i];
+            let domItem = createItem(item);
+            itemArray.push(domItem);
+            domItem.renderView();
+        }
+    },
+}
+
+const createTab = {
+    createTab() {
         const tab = document.createElement("li");
-        tab.innerText = `${projectObject.title}`;
+        tab.innerText = `${this.list.title}`;
         tab.classList.add("project");
-        if (projectObject.priority) {
-            tab.classList.add(`${projectObject.priority}`);
+        if (this.list.priority) {
+            tab.classList.add(`${this.list.priority}`);
         }
         tab.addEventListener("click", () => {
-            clearDisplay();
-            openList(projectObject);
-        })
-        userProjects.appendChild(tab);
-    }
+            this.openList();
+        }) 
+        return tab;    
+    },
+}
 
-    projectSection.appendChild(userProjects);
+function createList(list) {
+    const domList = Object.create(domListMethods);
+    domList.list = list;
+    return domList
 }
 
 function removeProjects() {
     const userProjects = document.querySelector(".user-projects");
     if (userProjects) {
         userProjects.remove();
-    }
-}
-
-function renderListItems(list) {
-    itemArray = [];
-    for (let i = 0; i < list.items.length; i++) {
-        let item = list.items[i];
-        let domItem = createItem(item);
-        itemArray.push(domItem);
-        domItem.renderView();
     }
 }
 
@@ -123,14 +154,6 @@ function createItem(item) {
     return domItem
 }
 
-function openList(list = timeObjects[0]) {
-    clearDisplay();
-    currentList = list;
-    titleDisplay.innerText = list.title;
-    if (list.items.length) {
-        renderListItems(list);
-    }
-}
 
 function clearDisplay() {
     if (itemContainer.firstChild) {
@@ -144,6 +167,6 @@ function clearDisplay() {
 }
 
 export {
-    createProjects, openList, renderTimeTabs,
+    createProjects, openRecentProject, renderTimeTabs,
     currentList, appendNewItem
 }

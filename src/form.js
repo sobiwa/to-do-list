@@ -1,5 +1,7 @@
 import { addProject, addListItem } from "./listData";
-import { createProjects, openList, currentList, appendNewItem } from "./dom";
+import { createProjects, currentList,
+    appendNewItem, openRecentProject } from "./dom";
+import { toDate } from "date-fns";
 
 const form = document.querySelector(".add-form");
 const infoBtn = document.querySelector("button.info");
@@ -20,7 +22,7 @@ const input = {
 function convertFormToData() {
     const title = input.title.value;
     const notes = input.notes.value;
-    const due = input.notes.value;
+    const due = input.due.value;
     let priority;
     if (document.querySelector("input[name='priority']:checked")) {
         priority = document.querySelector("input[name='priority']:checked").value;
@@ -61,7 +63,7 @@ submitBtn.addEventListener("click", () => {
     if (inputType === "project") {
         const project = addProject(...input);
         createProjects();
-        openList(project);
+        openRecentProject();
     } else if (inputType === "item") {
         const projectTitle = currentList.title;
         const newItem = addListItem(...input, projectTitle);

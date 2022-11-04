@@ -137,9 +137,60 @@ body {
 
 .meat {
     display: flex;
+    padding: 30px;
+    flex-wrap: wrap;
+    gap: 16px;
 }
 .main {
-    padding: 30px;
+    min-width: 300px;
+    flex: 3 1 auto;
+}
+
+.details-box {
+    flex: 1 1 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    border: 1px solid var(--subtle);
+    padding: 8px;
+} 
+
+.detail-title {
+    font-size: 1.2rem;
+    border-bottom: 1px solid var(--more-subtle);
+
+}
+
+.project-notes {
+    max-width: 300px;
+}
+
+.delete-button {
+    justify-self: flex-end;
+    align-self: flex-end;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 1.1rem;
+    box-sizing: border-box;
+    appearance: none;
+    border: none;
+    height: 2rem;
+    max-width: 32px;
+    padding: 8px 8px;
+    background-color: var(--more-subtle);
+    border-radius: 10px;
+    transition: max-width 0.3s ease-out;
+}
+
+.delete-button-text {
+    overflow: hidden;
+    max-height: 2rem;
+}
+
+.delete-button:hover {
+    max-width: 150px;
 }
 
 .add-item {
@@ -365,10 +416,6 @@ body {
     cursor: pointer;
 }
 
-.list-item input[type="checkbox"]:checked + label {
-    text-decoration: line-through var(--more-subtle);
-    color: var(--more-subtle);
-}
 
 .list-item input[type="checkbox"] {
     appearance: none;
@@ -379,7 +426,7 @@ body {
     position: relative;
 }
 
-.list-item input[type="checkbox"]::after {
+.list-item input[type="checkbox"]::before {
     content: '';
     position: absolute;
     background-color: var(--subtle);
@@ -393,9 +440,13 @@ body {
     left: 1px;
 }
 
-.list-item input[type="checkbox"]:checked::after {
+.list-item input[type="checkbox"]:checked::before {
     visibility: visible;
     transform: scale(1);
 }
 
+.list-item input[type="checkbox"]:checked + label {
+    text-decoration: line-through var(--more-subtle);
+    color: var(--more-subtle);
+}
 

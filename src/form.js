@@ -1,7 +1,9 @@
 import { addProject, addListItem } from "./listData";
-import { createProjects, currentList,
-    appendNewItem, openRecentProject } from "./dom";
-import { toDate } from "date-fns";
+import {
+    createProjects, currentList,
+    appendNewItem, openRecentProject
+} from "./dom";
+import { parseISO } from "date-fns";
 
 const form = document.querySelector(".add-form");
 const infoBtn = document.querySelector("button.info");
@@ -22,7 +24,13 @@ const input = {
 function convertFormToData() {
     const title = input.title.value;
     const notes = input.notes.value;
-    const due = input.due.value;
+
+    //converts input string to date object
+    //avoiding time-zone complications
+    let due = input.due.value
+    if (due) {
+        due = parseISO(due);
+    }
     let priority;
     if (document.querySelector("input[name='priority']:checked")) {
         priority = document.querySelector("input[name='priority']:checked").value;
@@ -82,7 +90,7 @@ cancelBtn.addEventListener("click", () => {
 titleInput.addEventListener('keypress', (e) => {
     if (e.keyCode === 13) {
         e.preventDefault();
-    } 
+    }
 })
 
 

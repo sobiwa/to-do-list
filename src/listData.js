@@ -4,19 +4,17 @@ let allProjects = {};
 
 const timeMethods = {
     compileArray() {
-
+        this.items = [];
         for (let project in allProjects) {
             if (allProjects[project].items) {
-                this.items = [];
                 for (let item of allProjects[project].items) {
                     if (item.due) {
 
-                        //add space to interpret date properly 
-                        let due = item.due + " ";
-                        due = new Date(due);
+                        let due = item.due;
                         if (this.end) {
                             if (due >= this.begin && due < this.end) {
                                 this.items.push(item);
+                                console.log(this.items);
                             }
                         } else {
                             if (due >= this.begin) {

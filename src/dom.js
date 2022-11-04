@@ -1,5 +1,6 @@
 import { allProjects, timeObjects } from "./listData";
 import { openForm } from "./form";
+import { format } from "date-fns";
 
 const timeSection = document.querySelector(".time-cats");
 const projectSection = document.querySelector(".projects");
@@ -26,6 +27,12 @@ newItem.addEventListener("click", () => {
 
 mainDisplay.append(titleDisplay, itemContainer, newItem);
 
+function renderTodayList() {
+    timeObjects[0].compileArray();
+    let domList = createList(timeObjects[0]);
+    domList.openList();
+}
+
 
 function renderTimeTabs() {
     for (let object of timeObjects) {
@@ -49,7 +56,8 @@ function createProjects() {
 
     for (let project in allProjects) {
         let projectObject = allProjects[project];
-        let domList = Object.assign(createList(projectObject), createTab);
+        // let domList = Object.assign(createList(projectObject), createTab);
+        let domList = createProjectList(projectObject);
         listArray.push(domList);
         console.log(domList);
         userProjects.appendChild(domList.createTab());
@@ -60,6 +68,7 @@ function createProjects() {
 function openRecentProject() {
     const recentProject = listArray[listArray.length - 1];
     recentProject.openList();
+    recentProject.createDetailsBox();
 }
 
 const domListMethods = {
@@ -92,15 +101,96 @@ const createTab = {
         }
         tab.addEventListener("click", () => {
             this.openList();
-        }) 
-        return tab;    
+            this.createDetailsBox();
+        })
+        return tab;
     },
 }
+
+const createDetailsBox = {
+    createDetailsBox() {
+        // let content = false;
+        var box = document.createElement("div");
+        if (this.list.due |
+            this.list.notes |
+            this.list.priority) {
+            box.classList.add("details-box");
+        //     content = true;
+        }
+        if (this.list.due) {
+            const due = document.createElement("div");
+            const dueTitle = document.createElement("div");
+            dueTitle.classList.add("detail-title");
+            dueTitle.innerText = "Due"
+            const dueContent = document.createElement("div");
+            let formattedDate = format(this.list.due, "PPPP");
+            dueContent.innerText = formattedDate;
+            due.append(dueTitle, dueContent);
+            box.appendChild(due);
+        }
+
+        if (this.list.notes) {
+            const notes = document.createElement("div");
+            const notesTitle = document.createElement("div");
+            notesTitle.classList.add("detail-title");
+            notesTitle.innerText = "Notes";
+            const notesContent = document.createElement("div");
+            notesContent.classList.add("project-notes");
+            notesContent.innerText = this.list.notes;
+            notes.append(notesTitle, notesContent);
+            box.appendChild(notes);
+        }
+
+        if (this.list.priority) {
+            const priority = document.createElement("div");
+            const priorityTitle = document.createElement("div");
+            priorityTitle.classList.add("detail-title");
+            priorityTitle.innerText = "Priority";
+            const priorityContent = document.createElement("div");
+            priorityContent.innerText = this.list.priority;
+            priority.append(priorityTitle, priorityContent);
+            box.appendChild(priority);
+        }
+
+        const deleteBtn = document.createElement("button");
+        deleteBtn.classList.add("mdi", "mdi-delete-circle-outline");
+        deleteBtn.classList.add("delete-button");
+        const deleteBtnText = document.createElement("div");
+        deleteBtnText.classList.add("delete-button-text");
+        deleteBtnText.innerText = "Delete List";
+        deleteBtn.appendChild(deleteBtnText);
+        deleteBtn.addEventListener("click", () => {
+            this.list.deleteProject();
+            createProjects();
+            renderTodayList();
+        })
+        // deleteBtn.addEventListener("mouseover", () => {
+        //         deleteBtnText.style.maxWidth = deleteBtnText.scrollWidth + "px";
+        //     })
+
+        box.appendChild(deleteBtn);
+
+
+        // if (content) {
+        projectDetails.appendChild(box);
+        // };
+    },
+};
+
+
 
 function createList(list) {
     const domList = Object.create(domListMethods);
     domList.list = list;
     return domList
+}
+
+function createProjectList(list) {
+    let proto = Object.assign(domListMethods, createTab,
+        createDetailsBox);
+    let domList = Object.create(proto);
+    domList.list = list;
+    return domList;
 }
 
 function removeProjects() {
@@ -149,13 +239,16 @@ function createItem(item) {
 
     domItem.item = item;
     domItem.checkbox = checkbox;
-    domItem.itemText = item.title;
+    domItem.itemText = itemText;
 
     return domItem
 }
 
 
 function clearDisplay() {
+    if (projectDetails.firstChild) {
+        projectDetails.removeChild(projectDetails.firstChild);
+    }
     if (itemContainer.firstChild) {
         for (let item of itemArray) {
             if (item.checkbox.checked) {
@@ -168,5 +261,5 @@ function clearDisplay() {
 
 export {
     createProjects, openRecentProject, renderTimeTabs,
-    currentList, appendNewItem
+    currentList, appendNewItem, renderTodayList,
 }

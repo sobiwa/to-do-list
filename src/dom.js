@@ -31,6 +31,7 @@ function renderTodayList() {
     timeObjects[0].compileArray();
     let domList = createList(timeObjects[0]);
     domList.openList();
+    currentList.type = "time";
 }
 
 
@@ -40,9 +41,11 @@ function renderTimeTabs() {
         tab.classList.add("cat");
         tab.innerText = object.title;
         tab.addEventListener("click", () => {
+            clearDisplay();
             object.compileArray();
             let domList = createList(object);
             domList.openList();
+            currentList.type = "time";
         })
         timeSection.appendChild(tab);
     }
@@ -68,7 +71,10 @@ function createProjects() {
 function openRecentProject() {
     const recentProject = listArray[listArray.length - 1];
     recentProject.openList();
-    recentProject.createDetailsBox();
+    const detailBox = recentProject.createDetailsBox();
+    const delBtn = recentProject.makeDeleteButton();
+    detailBox.appendChild(delBtn);
+    projectDetails.appendChild(detailBox);
 }
 
 const domListMethods = {
@@ -101,57 +107,65 @@ const createTab = {
         }
         tab.addEventListener("click", () => {
             this.openList();
-            this.createDetailsBox();
+            const detailBox = this.createDetailsBox();
+            const delBtn = this.makeDeleteButton();
+            detailBox.appendChild(delBtn);
+            projectDetails.appendChild(detailBox);
+            currentList.type = "project";
         })
         return tab;
     },
 }
 
-const createDetailsBox = {
+const createDetailsBox = (state) => ({
     createDetailsBox() {
-        // let content = false;
         var box = document.createElement("div");
-        if (this.list.due |
-            this.list.notes |
-            this.list.priority) {
+        if (state.due |
+            state.notes |
+            state.priority) {
             box.classList.add("details-box");
-        //     content = true;
         }
-        if (this.list.due) {
+        if (state.due) {
             const due = document.createElement("div");
             const dueTitle = document.createElement("div");
             dueTitle.classList.add("detail-title");
             dueTitle.innerText = "Due"
             const dueContent = document.createElement("div");
-            let formattedDate = format(this.list.due, "PPPP");
+            let formattedDate = format(state.due, "PPPP");
             dueContent.innerText = formattedDate;
             due.append(dueTitle, dueContent);
             box.appendChild(due);
         }
 
-        if (this.list.notes) {
+        if (state.notes) {
             const notes = document.createElement("div");
             const notesTitle = document.createElement("div");
             notesTitle.classList.add("detail-title");
             notesTitle.innerText = "Notes";
             const notesContent = document.createElement("div");
             notesContent.classList.add("project-notes");
-            notesContent.innerText = this.list.notes;
+            notesContent.innerText = state.notes;
             notes.append(notesTitle, notesContent);
             box.appendChild(notes);
         }
 
-        if (this.list.priority) {
+        if (state.priority) {
             const priority = document.createElement("div");
             const priorityTitle = document.createElement("div");
             priorityTitle.classList.add("detail-title");
             priorityTitle.innerText = "Priority";
             const priorityContent = document.createElement("div");
-            priorityContent.innerText = this.list.priority;
+            priorityContent.innerText = state.priority;
             priority.append(priorityTitle, priorityContent);
             box.appendChild(priority);
         }
 
+        return box
+    }
+});
+
+const createProjectDeleteButton = (state) => ({
+    makeDeleteButton() {
         const deleteBtn = document.createElement("button");
         deleteBtn.classList.add("mdi", "mdi-delete-circle-outline");
         deleteBtn.classList.add("delete-button");
@@ -160,22 +174,13 @@ const createDetailsBox = {
         deleteBtnText.innerText = "Delete List";
         deleteBtn.appendChild(deleteBtnText);
         deleteBtn.addEventListener("click", () => {
-            this.list.deleteProject();
+            state.deleteProject();
             createProjects();
             renderTodayList();
         })
-        // deleteBtn.addEventListener("mouseover", () => {
-        //         deleteBtnText.style.maxWidth = deleteBtnText.scrollWidth + "px";
-        //     })
-
-        box.appendChild(deleteBtn);
-
-
-        // if (content) {
-        projectDetails.appendChild(box);
-        // };
-    },
-};
+        return deleteBtn;
+    }
+})
 
 
 
@@ -186,9 +191,9 @@ function createList(list) {
 }
 
 function createProjectList(list) {
-    let proto = Object.assign(domListMethods, createTab,
-        createDetailsBox);
+    let proto = Object.assign(domListMethods, createTab);
     let domList = Object.create(proto);
+    domList = Object.assign(domList, createDetailsBox(list), createProjectDeleteButton(list));
     domList.list = list;
     return domList;
 }
@@ -214,6 +219,29 @@ const domItemMethods = {
         const itemDisplay = document.createElement("li");
         itemDisplay.classList.add("list-item");
         itemDisplay.append(this.checkbox, this.itemText);
+        const info = document.createElement("button");
+        info.classList.add("item-info-button", "mdi", "mdi-information-outline");
+        info.addEventListener("click", () => {
+            if (info.firstChild) {
+                info.removeChild(info.firstChild);
+            } else {
+                const detailBox = this.createDetailsBox();
+                detailBox.classList.add("item-details");
+                if (!detailBox.firstChild) {
+                    let noContent = document.createElement("div");
+                    noContent.innerText = "No information available";
+                    detailBox.appendChild(noContent);
+                }
+                info.appendChild(detailBox);
+            }
+        })
+        info.addEventListener("mouseleave", () => {
+            if (info.firstChild) {
+                info.removeChild(info.firstChild);
+            }
+        })
+        itemDisplay.appendChild(info);
+
         if (itemContainer.firstChild) {
             itemContainer.firstChild.appendChild(itemDisplay);
         } else {
@@ -221,11 +249,11 @@ const domItemMethods = {
             items.appendChild(itemDisplay);
             itemContainer.appendChild(items);
         }
-    }
+    },
 }
 
 function createItem(item) {
-    const domItem = Object.create(domItemMethods);
+    let domItem = Object.create(domItemMethods);
 
     const idTag = `item-${item.title}`
 
@@ -240,6 +268,8 @@ function createItem(item) {
     domItem.item = item;
     domItem.checkbox = checkbox;
     domItem.itemText = itemText;
+
+    domItem = Object.assign(domItem, createDetailsBox(item));
 
     return domItem
 }

@@ -450,3 +450,38 @@ body {
     color: var(--more-subtle);
 }
 
+.item-info-button {
+    cursor: pointer;
+    position: relative;
+    appearance: none;
+    border: none;
+    background-color: var(--background);
+    font-size: 1.2rem;
+    color: var(--subtle);
+    margin-left: auto;
+    visibility: hidden;
+}
+
+.list-item:hover .item-info-button {
+    visibility: visible;
+}
+
+.item-details {
+    font-family: arima;
+    position: absolute;
+    z-index: 10;
+    background-color: var(--more-subtle);
+    border: none;
+    width: 200px;
+    left: -200px;
+    border-radius: 20px;
+    box-shadow: 1px -1px 3px darkgray;
+}
+
+.detail-title {
+    font-size: 1.2rem;
+    color: var(--font);
+    border-bottom: 0.5px dotted var(--font);
+
+}
+

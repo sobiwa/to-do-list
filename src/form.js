@@ -1,9 +1,9 @@
-import { addProject, addListItem } from "./listData";
+import { addProject, addListItem, allProjects } from "./listData";
 import {
     createProjects, currentList,
     appendNewItem, openRecentProject
 } from "./dom";
-import { parseISO } from "date-fns";
+import { parseISO, startOfToday, format, add } from "date-fns";
 
 const form = document.querySelector(".add-form");
 const infoBtn = document.querySelector("button.info");
@@ -12,8 +12,16 @@ const submitBtn = document.querySelector(".submitBtn");
 const cancelBtn = document.querySelector(".cancel");
 const titleInput = document.querySelector("#title");
 const formType = document.querySelector(".form-type");
+const inputTitle = document.querySelector(".input-title");
 let inputType = '';
 
+const projectInput = document.createElement("input");
+projectInput.setAttribute("id", "item-project")
+const projectInputLabel = document.createElement("label");
+projectInputLabel.setAttribute("for", "item-project");
+projectInputLabel.innerText = "Project";
+const projectInputContainer = document.createElement("div");
+projectInputContainer.append(projectInputLabel, projectInput);
 
 const input = {
     title: document.querySelector("#title"),
@@ -41,13 +49,49 @@ function convertFormToData() {
 }
 
 function openForm(type) {
+    projectInputContainer.remove();
+    input.due.removeAttribute("disabled");
+    input.due.removeAttribute("min");
+    input.due.removeAttribute("max");
+    input.due.removeAttribute("value");
     if (type === "New Project") {
         inputType = "project"
-    } else {
+    } else if (currentList.type === "time") {
+        inputType = "time";
+        restrictDateInput();
+        inputTitle.insertAdjacentElement("afterend", projectInputContainer)
+    } else if (type === "item") {
         inputType = "item";
     }
     formType.innerText = type;
     form.classList.add("visible");
+}
+
+let todayDate = startOfToday();
+let tomorrow = add(todayDate, { days: 1 });
+let thisWeekDate = add(todayDate, { weeks: 1 });
+let nextWeekDate = add(todayDate, { weeks: 2 });
+todayDate = format(todayDate, "yyyy-MM-dd");
+tomorrow = format(tomorrow, "yyyy-MM-dd");
+thisWeekDate = format(thisWeekDate, "yyyy-MM-dd");
+nextWeekDate = format(nextWeekDate, "yyyy-MM-dd");
+
+function restrictDateInput() {
+    if (currentList.title === "Today") {
+        input.due.setAttribute("value", todayDate);
+        input.due.setAttribute("disabled", true);
+    } else if (currentList.title === "This Week") {
+        input.due.setAttribute("value", tomorrow);
+        input.due.setAttribute("min", tomorrow);
+        input.due.setAttribute("max", thisWeekDate);
+    } else if (currentList.title === "Next Week") {
+        input.due.setAttribute("value", thisWeekDate);
+        input.due.setAttribute("min", thisWeekDate);
+        input.due.setAttribute("max", nextWeekDate);
+    } else if (currentList.title === "Future") {
+        input.due.setAttribute("value", nextWeekDate);
+        input.due.setAttribute("min", nextWeekDate);
+    }
 }
 
 function closeForm() {
@@ -77,6 +121,19 @@ submitBtn.addEventListener("click", () => {
         const newItem = addListItem(...input, projectTitle);
         newItem.addToProject();
         appendNewItem(newItem);
+    } else if (inputType === "time") {
+        let projectTitle = projectInput.value;
+        if (!projectTitle) {
+            projectTitle = "Strays";
+        }
+        if (!allProjects[projectTitle]) {
+            addProject(projectTitle);
+        }
+        const newItem = addListItem(...input, projectTitle);
+        newItem.addToProject();
+        appendNewItem(newItem);
+        createProjects();
+        
     }
     form.reset();
     closeForm();

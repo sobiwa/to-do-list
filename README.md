@@ -1,27 +1,19 @@
 # to-do-list
 
-Outline
+This project is an example of one of my first times
+using webpack.
 
-maybe
--notes
--checklist
+It's also pretty much my first time organizing my code
+with es6 modules. 
 
--Projects (separate lists)
+Another first: implementing local storage.
 
-Main
--display title of project 
-    -all items in project
+A major focus in organizing this code was experimentation 
+with object creation, utilizing inheritance and composition.
 
-Time Projects
--update automatically based on date
--refresh on different date
--add past due category if applicable
-
-Items
--title 
--description
--dueDate
--priority
-//
-subcategories
-
+Features to be added on return to this project:
+-"past due" category if applicable
+-sort and filter capabilities
+-user profile creation
+-dark mode
+-style for different priority items

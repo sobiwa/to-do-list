@@ -227,6 +227,16 @@ const domItemMethods = {
             } else {
                 const detailBox = this.createDetailsBox();
                 detailBox.classList.add("item-details");
+                if (currentList.type === "time") {
+                    const projectFamily = document.createElement("div")
+                    const projectFamilyTitle = document.createElement("div");
+                    projectFamilyTitle.classList.add("detail-title");
+                    projectFamilyTitle.innerText = "Project";
+                    const projectFamilyContent = document.createElement("div");
+                    projectFamilyContent.innerText = this.item.project;
+                    projectFamily.append(projectFamilyTitle, projectFamilyContent);
+                    detailBox.appendChild(projectFamily);
+                }
                 if (!detailBox.firstChild) {
                     let noContent = document.createElement("div");
                     noContent.innerText = "No information available";

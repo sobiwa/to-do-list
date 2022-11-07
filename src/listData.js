@@ -1,5 +1,29 @@
-import { add, startOfToday } from "date-fns";
-import { allProjects } from "./init";
+import { add, startOfToday, parseISO } from "date-fns";
+
+let allProjects = {};
+
+function retrieveStorage() {
+    let retrievedItems = [];
+    for (let data in localStorage) {
+        console.log(data);
+        let retrievedData = localStorage.getItem(data);
+        retrievedData = JSON.parse(retrievedData);
+        if (data.startsWith("project")) {
+            let arrayOfInfo = [retrievedData.title, retrievedData.notes,
+            retrievedData.due, retrievedData.priority]
+            addProject(...arrayOfInfo);
+        } else if (data.startsWith("item")) {
+            let arrayOfInfo = [retrievedData.title, retrievedData.notes,
+            retrievedData.due, retrievedData.priority, retrievedData.project];
+            let retrievedItem = addListItem(...arrayOfInfo);
+            retrievedItems.push(retrievedItem);
+        }
+    }
+    for (let item of retrievedItems) {
+        item.addToProject();
+    }
+}
+
 
 const timeMethods = {
     compileArray() {
@@ -50,7 +74,11 @@ let timeObjects = [today, thisWeek, nextWeek, future];
 
 const projectMethods = {
     deleteProject() {
+        for (let item of this.items) {
+            localStorage.removeItem(`item-${this.title}-${item.title}`)
+        }
         delete allProjects[this.title];
+        localStorage.removeItem(`project-${this.title}`);
     }
 }
 
@@ -58,36 +86,48 @@ function addProject(title, notes, due, priority) {
     let project = Object.create(projectMethods);
     project.title = title;
     project.notes = notes;
-    project.due = due;
+    if (due) {
+        project.due = parseISO(due);
+    } else {
+        project.due = "";
+    }
     project.priority = priority;
     project.items = [];
     allProjects[project.title] = project;
-    localStorage.setItem("savedData", allProjects);
+    localStorage.setItem(`project-${project.title}`,
+        JSON.stringify({ title, notes, due, priority }));
     return project;
 }
 
 const itemMethods = {
     addToProject() {
         allProjects[this.project].items.push(this);
-        localStorage.setItem("savedData", allProjects);
     },
     removeFromProject() {
         const index = allProjects[this.project].items.indexOf(this);
         allProjects[this.project].items.splice(index, 1);
-        localStorage.setItem("savedData", allProjects);
+        localStorage.removeItem(`item-${this.project}-${this.title}`);
     }
 }
 function addListItem(title, notes, due, priority, project) {
     let item = Object.create(itemMethods);
     item.title = title;
     item.notes = notes;
-    item.due = due;
+    if (due) {
+        item.due = parseISO(due);
+    } else {
+        item.due = "";
+    }
     item.priority = priority;
     item.project = project;
-    console.log(item);
+    localStorage.setItem(`item-${item.project}-${item.title}`,
+        JSON.stringify(item));
     return item;
 }
 
-export { addProject, addListItem, allProjects, timeObjects };
+export {
+    addProject, addListItem, allProjects, timeObjects,
+    retrieveStorage
+};
 
 

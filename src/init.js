@@ -1,15 +1,14 @@
 import { openForm } from "./form.js";
-import { renderTimeTabs, renderTodayList } from "./dom.js";
+import { createProjects, renderTimeTabs, renderTodayList } from "./dom.js";
+import { retrieveStorage } from "./listData.js";
 
 const newProject = document.querySelector(".new-project");
-let allProjects;
 
 export default function () {
 
-    if (!localStorage.getItem('savedData')) {
-        allProjects = {};
-    } else {
-        allProjects = localStorage.getItem("savedData");
+    if (localStorage.length) {
+        retrieveStorage();
+        createProjects();
     }
 
     renderTodayList();
@@ -20,5 +19,3 @@ export default function () {
     })
 
 }
-
-export { allProjects }

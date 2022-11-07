@@ -35,9 +35,9 @@ function convertFormToData() {
 
     //converts input string to date object
     //avoiding time-zone complications
-    let due = input.due.value
+    let due = input.due.value;
     if (due) {
-        due = parseISO(due);
+        due = input.due.value;
     }
     let priority;
     if (document.querySelector("input[name='priority']:checked")) {

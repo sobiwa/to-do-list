@@ -131,6 +131,7 @@ const createDetailsBox = (state) => ({
             dueTitle.classList.add("detail-title");
             dueTitle.innerText = "Due"
             const dueContent = document.createElement("div");
+            console.log(state.due);
             let formattedDate = format(state.due, "PPPP");
             dueContent.innerText = formattedDate;
             due.append(dueTitle, dueContent);

@@ -183,8 +183,6 @@ const createProjectDeleteButton = (state) => ({
     }
 })
 
-
-
 function createList(list) {
     const domList = Object.create(domListMethods);
     domList.list = list;

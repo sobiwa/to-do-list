@@ -1,6 +1,5 @@
 import { add, startOfToday } from "date-fns";
-
-let allProjects = {};
+import { allProjects } from "./init";
 
 const timeMethods = {
     compileArray() {
@@ -63,18 +62,19 @@ function addProject(title, notes, due, priority) {
     project.priority = priority;
     project.items = [];
     allProjects[project.title] = project;
-    console.log(allProjects);
+    localStorage.setItem("savedData", allProjects);
     return project;
 }
 
 const itemMethods = {
     addToProject() {
         allProjects[this.project].items.push(this);
-        console.log(allProjects);
+        localStorage.setItem("savedData", allProjects);
     },
     removeFromProject() {
         const index = allProjects[this.project].items.indexOf(this);
         allProjects[this.project].items.splice(index, 1);
+        localStorage.setItem("savedData", allProjects);
     }
 }
 function addListItem(title, notes, due, priority, project) {

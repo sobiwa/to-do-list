@@ -6,6 +6,10 @@ function retrieveStorage() {
     let retrievedItems = [];
     for (let data in localStorage) {
         console.log(data);
+        if (!data.startsWith("project") &&
+        !data.startsWith("item")) {
+            continue;
+        }
         let retrievedData = localStorage.getItem(data);
         retrievedData = JSON.parse(retrievedData);
         if (data.startsWith("project")) {

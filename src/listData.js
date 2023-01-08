@@ -3,6 +3,7 @@ import { add, startOfToday, parseISO } from "date-fns";
 let allProjects = {};
 
 function retrieveStorage() {
+    console.log('fix');
     let retrievedItems = [];
     for (let data in localStorage) {
         console.log(data);

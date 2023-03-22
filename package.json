@@ -7,7 +7,7 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "watch": "webpack --watch",
     "start": "webpack serve --open",
-    "build": "webpack"
+    "build": "webpack --mode development"
   },
   "repository": {
     "type": "git",
@@ -29,6 +29,7 @@
   },
   "dependencies": {
     "@mdi/font": "^7.0.96",
-    "date-fns": "^2.29.3"
+    "date-fns": "^2.29.3",
+    "firebase": "^9.18.0"
   }
 }

@@ -25,7 +25,7 @@ export default function userButton(user) {
     accountIconImg.append(userImg);
   }
   buttonText.textContent = `${
-    user !== null ? user.displayName ?? trimEmail(user.email) : 'Log in'
+    user ? user.displayName ?? trimEmail(user.email) : 'Log in'
   }`;
 
   button.append(accountIconImg, buttonText);

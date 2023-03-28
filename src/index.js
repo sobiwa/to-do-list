@@ -5,7 +5,6 @@ import updateHeader from './updateHeader';
 import { removeSignIn } from './signIn';
 import {
   getAuth,
-  connectAuthEmulator,
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
   onAuthStateChanged,
@@ -19,12 +18,10 @@ import {
   setDoc,
   getDocs,
   getDoc,
-  addDoc,
   doc,
   query,
   deleteDoc,
   where,
-  collectionGroup,
 } from 'firebase/firestore';
 
 const firebaseApp = initializeApp({
@@ -39,13 +36,6 @@ const firebaseApp = initializeApp({
 const auth = getAuth(firebaseApp);
 // connectAuthEmulator(auth, 'http://localhost:9099');
 const db = getFirestore(firebaseApp);
-
-const userCollection = collection(db, 'users');
-
-// async function addUser(user) {
-//   const newUser = doc(db, `users/${user.uid}`)
-//   const newUser = await addDoc(userCollection, user.uid)
-// }
 
 export async function addProjectToFirebase(project) {
   const userProject = doc(
@@ -101,13 +91,6 @@ export async function getProjectId(title) {
   const projectsQuery = query(projects, where('title', '==', title));
   const querySnapshot = await getDocs(projectsQuery);
   const array = querySnapshot.docs;
-
-  // Code before implementing 'where'
-  // const id = array.find((snap) => {
-  //   const data = snap.data();
-  //   return data.title === title;
-  // });
-  
   return array.length ? array[0].id : false;
 }
 
@@ -129,7 +112,8 @@ export async function deleteItemFromFirebase(item) {
 }
 
 // this is apparently not recommended by firebase. I should have kept all the item
-// data in each project doc rather than sub-collections
+// data in each project doc rather than sub-collections, but they also say to keep docs
+// small
 export async function deleteProjectFromFirebase({ id }) {
   const projectRef = doc(db, `users/${auth.currentUser.uid}/projects/${id}`);
   const items = collection(projectRef, 'items');
@@ -149,15 +133,6 @@ export async function queryStraysExistence() {
   const strays = await getDoc(straysDoc);
   return strays.exists();
 }
-
-// export async function addStrayItemToFirebase(item) {
-//   const strayItem = doc(db, `users/${auth.currentUser.uid}/projects/strays/items/${item.id}`)
-//   const newItem = await setDoc(strayItem, item)
-// }
-
-// async function addItem(item) {
-//   const
-// }
 
 export async function signUpEmailPassword(email, password) {
   try {

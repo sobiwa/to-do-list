@@ -1,17 +1,11 @@
-import { getProjectId } from '.';
+import { getProjectId, queryStraysExistence } from '.';
 import { addProject, addListItem } from './listData';
-import {
-  createProjects,
-  getCurrentList,
-  appendNewItem,
-  openProject,
-} from './dom';
+import { getCurrentList, appendNewItem, appendNewProject } from './dom';
 import { startOfToday, format, add } from 'date-fns';
 
 const form = document.querySelector('.add-form');
 const infoBtn = document.querySelector('button.info');
 const hidden = document.querySelector('.hidden');
-const submitBtn = document.querySelector('.submitBtn');
 const cancelBtn = document.querySelector('.cancel');
 const titleInput = document.querySelector('#title');
 const formType = document.querySelector('.form-type');
@@ -27,7 +21,7 @@ const projectInputContainer = document.createElement('div');
 projectInputContainer.append(projectInputLabel, projectInput);
 
 const input = {
-  title: document.querySelector('#title'),
+  title: titleInput,
   notes: document.querySelector('#notes'),
   due: document.querySelector('#due'),
 };
@@ -35,13 +29,8 @@ const input = {
 function convertFormToData() {
   const title = input.title.value;
   const notes = input.notes.value;
+  const due = input.due.value;
 
-  //converts input string to date object
-  //avoiding time-zone complications
-  let due = input.due.value;
-  if (due) {
-    due = input.due.value;
-  }
   let priority;
   if (document.querySelector("input[name='priority']:checked")) {
     priority = document.querySelector("input[name='priority']:checked").value;
@@ -59,12 +48,14 @@ function openForm(type) {
   input.due.removeAttribute('value');
   if (type === 'New Project') {
     inputType = 'project';
-  } else if (type === 'item') {
-    inputType = 'item';
   } else {
-    inputType = 'time';
-    restrictDateInput();
-    inputTitle.insertAdjacentElement('afterend', projectInputContainer);
+    if (getCurrentList().type === 'time') {
+      inputType = 'time';
+      restrictDateInput();
+      inputTitle.insertAdjacentElement('afterend', projectInputContainer);
+    } else {
+      inputType = 'item';
+    }
   }
   formType.innerText = type;
   form.classList.add('visible');
@@ -114,17 +105,15 @@ infoBtn.addEventListener('click', () => {
   }
 });
 
-submitBtn.addEventListener('click', () => {
+form.onsubmit = async (e) => {
+  e.preventDefault();
   const input = convertFormToData();
   switch (inputType) {
     case 'project':
       const newProject = addProject(input);
-      createProjects();
-      openProject(newProject);
-      //   openRecentProject();
+      appendNewProject(newProject, true);
       break;
     case 'item':
-      // newItem.addToProject();
       const { id, title } = getCurrentList();
       appendNewItem(
         addListItem({
@@ -138,11 +127,21 @@ submitBtn.addEventListener('click', () => {
       let newItem;
       const projectTitle = projectInput.value;
       if (!projectTitle) {
+        const straysExists = await queryStraysExistence();
+        if (!straysExists) {
+          const project = addProject({
+            title: 'Strays',
+            id: 'strays',
+            notes: 'Here resides tasks created without a project association',
+          });
+          appendNewProject(project);
+        }
         newItem = addListItem(input);
       } else {
-        const existingProjectId = getProjectId(projectTitle);
+        const existingProjectId = await getProjectId(projectTitle);
         if (!existingProjectId) {
           const project = addProject({ title: projectTitle });
+          appendNewProject(project);
           newItem = addListItem({
             ...input,
             projectId: project.id,
@@ -156,24 +155,22 @@ submitBtn.addEventListener('click', () => {
           });
         }
       }
-      // newItem.addToProject();
       appendNewItem(newItem);
-      createProjects();
       break;
   }
   form.reset();
   closeForm();
-});
+};
 
 cancelBtn.addEventListener('click', () => {
   form.reset();
   closeForm();
 });
 
-titleInput.addEventListener('keypress', (e) => {
-  if (e.keyCode === 13) {
-    e.preventDefault();
-  }
-});
+function focusForm() {
+  setTimeout(() => {
+    document.getElementById('title').focus();
+  }, 350);
+}
 
-export { convertFormToData, openForm };
+export { convertFormToData, openForm, focusForm };

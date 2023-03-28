@@ -5,37 +5,14 @@ import {
   deleteItemFromFirebase,
   deleteProjectFromFirebase,
 } from '.';
-import { openForm } from './form';
 import { format, parseISO } from 'date-fns';
-
-const timeSection = document.querySelector('.time-cats');
-const projectSection = document.querySelector('.projects');
-const mainDisplay = document.querySelector('.main');
-const titleDisplay = document.createElement('h1');
-titleDisplay.classList.add('title-display');
-const itemContainer = document.createElement('div');
-itemContainer.classList.add('item-container');
-const projectDetails = document.querySelector('.project-details');
 
 let currentList;
 let itemArray = [];
-let listArray = [];
 
 function getCurrentList() {
   return currentList;
 }
-
-const newItem = document.createElement('button');
-const plusIcon = document.createElement('span');
-newItem.innerText = 'add';
-plusIcon.classList.add('mdi', 'mdi-playlist-plus');
-newItem.appendChild(plusIcon);
-newItem.classList.add('add-item');
-newItem.addEventListener('click', () => {
-  openForm('item');
-});
-
-mainDisplay.append(titleDisplay, itemContainer, newItem);
 
 async function renderTodayList() {
   await timeObjects[0].compileArray();
@@ -45,11 +22,13 @@ async function renderTodayList() {
 }
 
 function renderTimeTabs() {
+  const timeSection = document.querySelector('.time-cats');
   for (const object of timeObjects) {
     const tab = document.createElement('li');
     tab.classList.add('cat');
     tab.innerText = object.title;
     tab.addEventListener('click', async () => {
+      if (currentList.title === object.title) return;
       clearDisplay();
       await object.compileArray();
       let domList = createList(object);
@@ -61,7 +40,7 @@ function renderTimeTabs() {
 }
 
 async function createProjects() {
-  listArray = [];
+  const projectSection = document.querySelector('.projects');
   removeProjects();
   const userProjects = document.createElement('ul');
   userProjects.classList.add('user-projects');
@@ -76,17 +55,8 @@ async function createProjects() {
   projectSection.appendChild(userProjects);
 }
 
-function openRecentProject() {
-  const recentProject = listArray[listArray.length - 1];
-  recentProject.openList();
-  const detailBox = recentProject.createDetailsBox();
-  const delBtn = recentProject.makeDeleteButton();
-  detailBox.appendChild(delBtn);
-  projectDetails.appendChild(detailBox);
-}
-
-function openProject(project) {
-  const domList = createProjectList(project);
+function openProject(domList) {
+  const projectDetails = document.querySelector('.project-details');
   domList.openList();
   currentList.type = 'project';
   const detailBox = domList.createDetailsBox();
@@ -95,15 +65,26 @@ function openProject(project) {
   projectDetails.appendChild(detailBox);
 }
 
+function appendNewProject(newProject, open = false) {
+  const userProjects = document.querySelector('.user-projects');
+  const domList = createProjectList(newProject);
+  userProjects.append(domList.createTab());
+  if (open) {
+    openProject(domList);
+  }
+}
+
 const domListMethods = {
   openList() {
     clearDisplay();
+    const titleDisplay = document.querySelector('.title-display');
     currentList = this.list;
     titleDisplay.innerText = this.list.title;
     this.renderListItems();
   },
   async renderListItems() {
-    const items =  this.list.items || await fetchItemsFromProject(this.list.id);
+    const items =
+      this.list.items || (await fetchItemsFromProject(this.list.id));
     console.log(items);
     itemArray = [];
     for (const item of items) {
@@ -123,6 +104,8 @@ const createTab = {
       tab.classList.add(`${this.list.priority}`);
     }
     tab.addEventListener('click', () => {
+      if (currentList.title === this.list.title) return;
+      const projectDetails = document.querySelector('.project-details');
       this.openList();
       const detailBox = this.createDetailsBox();
       const delBtn = this.makeDeleteButton();
@@ -136,8 +119,8 @@ const createTab = {
 
 const createDetailsBox = (state) => ({
   createDetailsBox() {
-    var box = document.createElement('div');
-    if (state.due | state.notes | state.priority) {
+    const box = document.createElement('div');
+    if (state.due || state.notes || state.priority) {
       box.classList.add('details-box');
     }
     if (state.due) {
@@ -190,7 +173,7 @@ const createProjectDeleteButton = (state) => ({
     deleteBtnText.innerText = 'Delete List';
     deleteBtn.appendChild(deleteBtnText);
     deleteBtn.addEventListener('click', async () => {
-      deleteProjectFromFirebase(state);
+      await deleteProjectFromFirebase(state);
       await createProjects();
       renderTodayList();
     });
@@ -234,6 +217,7 @@ const domItemMethods = {
     deleteItemFromFirebase(this.item);
   },
   renderView() {
+    const itemContainer = document.querySelector('.item-container');
     const itemDisplay = document.createElement('li');
     itemDisplay.classList.add('list-item');
     itemDisplay.append(this.checkbox, this.itemText);
@@ -304,10 +288,12 @@ function createItem(item) {
 }
 
 function clearDisplay() {
-  if (projectDetails.firstChild) {
+  const projectDetails = document.querySelector('.project-details');
+  const itemContainer = document.querySelector('.item-container');
+  if (projectDetails && projectDetails.firstChild) {
     projectDetails.removeChild(projectDetails.firstChild);
   }
-  if (itemContainer.firstChild) {
+  if (itemContainer && itemContainer.firstChild) {
     for (const item of itemArray) {
       if (item.checkbox.checked) {
         item.deleteItem();
@@ -318,7 +304,9 @@ function clearDisplay() {
 }
 
 export {
+  clearDisplay,
   createProjects,
+  appendNewProject,
   openProject,
   renderTimeTabs,
   getCurrentList,

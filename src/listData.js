@@ -97,7 +97,7 @@ const projectMethods = {
   },
 };
 
-function addProject({ title, notes, due, priority }) {
+function addProject({ title, notes = '', due = '', priority = '', id }) {
   // let project = Object.create(projectMethods);
   // project.title = title;
   // project.notes = notes;
@@ -118,7 +118,7 @@ function addProject({ title, notes, due, priority }) {
     notes,
     due: due ?? '',
     priority,
-    id: uniqid(),
+    id: id ?? uniqid(),
   };
 
   addProjectToFirebase(project);

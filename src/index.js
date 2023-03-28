@@ -23,6 +23,8 @@ import {
   doc,
   query,
   deleteDoc,
+  where,
+  collectionGroup,
 } from 'firebase/firestore';
 
 const firebaseApp = initializeApp({
@@ -65,7 +67,8 @@ export async function fetchProjectsFromFirebase() {
   return projectsArray;
 }
 
-// TODO: attempt with 'collectionGroup' from firebase. Not sure if it works with relative paths to filter user
+// attempted with 'collectionGroup', but unable to narrow query to specific user
+// did not want to open read access to all other users
 export async function fetchItemsFromFirebase() {
   const projects = collection(db, `users/${auth.currentUser.uid}/projects`);
   const projectsQuery = query(projects);
@@ -78,9 +81,8 @@ export async function fetchItemsFromFirebase() {
     })
   );
 
-  console.log(allItems);
-
   return allItems.flat();
+
 }
 
 export async function fetchItemsFromProject(projectId) {
@@ -94,17 +96,19 @@ export async function fetchItemsFromProject(projectId) {
   return array;
 }
 
-// TODO: check out 'where' (parameter for query) from firebase and see what it returns
 export async function getProjectId(title) {
   const projects = collection(db, `users/${auth.currentUser.uid}/projects`);
-  const projectsQuery = query(projects);
+  const projectsQuery = query(projects, where('title', '==', title));
   const querySnapshot = await getDocs(projectsQuery);
   const array = querySnapshot.docs;
-  const id = array.find((snap) => {
-    const data = snap.data();
-    return data.title === title;
-  });
-  return id?.id;
+
+  // Code before implementing 'where'
+  // const id = array.find((snap) => {
+  //   const data = snap.data();
+  //   return data.title === title;
+  // });
+  
+  return array.length ? array[0].id : false;
 }
 
 export async function addListItemToFirebase(item) {
@@ -140,11 +144,11 @@ export async function deleteProjectFromFirebase({ id }) {
   await deleteDoc(projectRef);
 }
 
-// export async function getStraysProjectId() {
-//   const straysDoc = doc(db, `users/${auth.currentUser.uid}/projects/strays`);
-//   const strays = await getDoc(straysDoc);
-//   return strays.exists() ? strays.data().id : false;
-// }
+export async function queryStraysExistence() {
+  const straysDoc = doc(db, `users/${auth.currentUser.uid}/projects/strays`);
+  const strays = await getDoc(straysDoc);
+  return strays.exists();
+}
 
 // export async function addStrayItemToFirebase(item) {
 //   const strayItem = doc(db, `users/${auth.currentUser.uid}/projects/strays/items/${item.id}`)
